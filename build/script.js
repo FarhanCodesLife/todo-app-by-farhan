@@ -75,12 +75,13 @@ form.addEventListener('submit', async (event) => {
 
 
 
-            arr.push({
+            arr.unshift({
                 input: input.value,
                 id: docRef.id
             })
             rendertodo()
 
+input.value=""
 
 
         } catch (error) {
