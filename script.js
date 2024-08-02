@@ -1,11 +1,48 @@
-import { collection,addDoc, getDocs,doc,updateDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-import { db } from "./config.js";
+import { collection,addDoc, getDocs,doc,updateDoc,deleteDoc,Timestamp,query, where,user ,orderBy} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import {  db,auth } from "./config.js";
+import { onAuthStateChanged  ,signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
 
 
 let form = document.querySelector('#form')
 let input = document.querySelector('#input')
 let todolist = document.querySelector('#todolist')
+
+
+
+const logoutBtn =document.querySelector('#logoutBtn')
+
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+          console.log(user);
+        //    user
+        console.log('ok');
+        
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/auth.user
+        const uid = user.uid;
+        // ...
+    } else {
+          window.location = 'index.html'
+        // User is signed out
+        console.log('not ok');
+        // ...
+      }
+    });
+
+
+    logoutBtn.addEventListener('click',()=>{
+
+        
+        signOut(auth).then(() => {
+            // Sign-out successful.
+        }).catch((error) => {
+            // An error happened.
+        });
+    })
+      
+
 
 
 
@@ -20,10 +57,12 @@ const arr = []
 async function getdata(params) {
 
     todolist.innerHTML = 'Loding...'
+    const q = query(collection(db, "todos"), orderBy("time", "desc"));
+    const querySnapshot = await getDocs(q);
 
-    const querySnapshot = await getDocs(collection(db, "todos"));
+    // const querySnapshot = await getDocs(collection(db, "todos"));
     querySnapshot.forEach((doc) => {
-        arr.push({...doc.data(), id:doc.id });
+        arr.push({...doc.data(), id:doc.id ,email:user.email,userid:user.uid});
 
     });
     console.log(arr);
@@ -53,14 +92,19 @@ form.addEventListener('submit', async (event) => {
             const docRef = await addDoc(collection(db, "todos"), {
                 // id: docRef.id,
                 input: input.value,
+                email:user.email,
+                userid:user.uid,
+                time: Timestamp.fromDate(new Date()),
             });
             console.log("Document written with ID: ", docRef.id);
 
 
 
-            arr.push({
+            arr.unshift({
                 input: input.value,
-                id: docRef.id
+                id: docRef.id,
+                email:user.email,
+                userid:user.uid,
             })
             rendertodo()
 
@@ -94,7 +138,10 @@ function rendertodo() {
 
 
     arr.map((element, index) => {
-        todolist.innerHTML += `<li>${element.input}</li> 
+        todolist.innerHTML += `
+        <li>${element.input}</li>
+        <li>${element.email}</li>
+        <p>${element.time ? element.time.toDate():'to time detected'}</p>
         <button id="edit">Edit</button>
         <button id="delet">Delet</button>`
 
