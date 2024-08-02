@@ -38,23 +38,6 @@ getdata()
 
 
 
-// async function getData() {
-//     const querySnapshot = await getDocs(collection(db, "todos"));
-//     querySnapshot.forEach((doc) => {
-//         arr.push({ ...doc.data(), id: doc.id });
-//     });
-//     console.log(arr);
-//     // renderTodo();
-//     console.log(arr[0].input);
-//   }
-  
-//   getData();
-
-
-
-
-// new data add karna arry me or array ko database me push karna 
-
 
 
 form.addEventListener('submit', async (event) => {
